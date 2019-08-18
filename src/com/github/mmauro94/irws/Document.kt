@@ -2,7 +2,7 @@ package com.github.mmauro94.irws
 
 import java.io.IOException
 
-class Document(val docId: Long, val tokens: List<String>) {
+class Document(val docId: Long, val terms: Set<Long>) {
 
     override fun hashCode() = docId.hashCode()
     override fun equals(other: Any?) = other is Document && other.docId == docId
@@ -30,7 +30,7 @@ fun Iterator<String>.nextDocument(): Document? {
         line = nextLineOrIOException()
         tokens += line.split(TOKEN_SPLIT_REGEX)
     }while(line.isNotBlank())
-    return Document(docId, tokens)
+    return Document(docId, tokens.toTermIds())
 }
 
 private fun Iterator<String>.nextLineOrIOException(): String {
