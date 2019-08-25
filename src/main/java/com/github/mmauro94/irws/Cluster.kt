@@ -12,12 +12,15 @@ class Cluster(
 
 fun Sequence<Document>.streamCluster(radius: Double): Set<Cluster> {
     val ret = HashSet<Cluster>()
-    forEach { d ->
-        val min = ret.minOf { c -> jaccardDistance(c.medoid, d, { it.terms }) }
+    forEachIndexed { i, doc ->
+        if (i % 1000 == 0) {
+            println("Clustered $i documents")
+        }
+        val min = ret.minOf { c -> jaccardDistance(c.medoid, doc, { it.terms }) }
         if (min != null && min.second < radius) {
-            min.first.addDoc(d)
+            min.first.addDoc(doc)
         } else {
-            ret.add(Cluster(d))
+            ret.add(Cluster(doc))
         }
     }
     return ret

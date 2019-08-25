@@ -2,6 +2,12 @@ package com.github.mmauro94.irws
 
 import java.io.IOException
 
+/**
+ * A document, composed by a doc ID and a set of terms, that are mapped to a unique long id
+ *
+ * @param docId the document id
+ * @param terms the list of terms
+ */
 class Document(val docId: Long, val terms: Set<Long>) {
 
     override fun hashCode() = docId.hashCode()
