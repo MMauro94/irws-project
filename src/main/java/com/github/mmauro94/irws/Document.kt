@@ -1,7 +1,5 @@
 package com.github.mmauro94.irws
 
-import java.io.IOException
-
 /**
  * A document, composed by a doc ID and a set of terms, that are mapped to a unique long id
  *
@@ -12,34 +10,21 @@ class Document(val docId: Long, val terms: Set<Long>) {
 
     override fun hashCode() = docId.hashCode()
     override fun equals(other: Any?) = other is Document && other.docId == docId
+
+    /**
+     * Computes the jaccard distance between this document and [other].
+     * Uses the [terms] as a set.
+     */
+    fun jaccardDistance(other: Document) = jaccardDistance(this, other) { it.terms }
 }
 
-private val FIRST_LINE_REGEX = "^\\.I ([0-9]+)$".toRegex()
-private val TOKEN_SPLIT_REGEX = " +".toRegex()
-
-fun Iterator<String>.nextDocument(): Document? {
-    //get first line, that should be in the format ".I <docid>"
-    val firstLine = if(hasNext()) next() else null
-    if(firstLine.isNullOrBlank()) return null //If line is null or empty, skip
-
-    //Match first line to get doc id
-    val match = FIRST_LINE_REGEX.matchEntire(firstLine)
-    val docId = if (match != null) match.groupValues[1].toLong()
-    else throw IOException("Line '$firstLine' has unexpected pattern")
-
-    val secondLine = nextLineOrIOException()
-    if(secondLine != ".W") throw IOException("Expected line '.W', got '$secondLine'")
-
-    val tokens = ArrayList<String>()
-    var line = ""
-    do {
-        line = nextLineOrIOException()
-        tokens += line.split(TOKEN_SPLIT_REGEX)
-    }while(line.isNotBlank())
-    return Document(docId, tokens.toTermIds())
-}
-
-private fun Iterator<String>.nextLineOrIOException(): String {
-    if (!hasNext()) throw IOException("Unexpected end of document")
-    else return next()
+/**
+ * Remap the document IDs following [this] sequence order.
+ * It will return a new [Sequence] of [Document], where each document will be a new instance containing the same terms and the a progressive doc ID, starting from `1`.
+ */
+fun Sequence<Document>.remapIds(): Sequence<Document> {
+    var lastId = 0L
+    return map { doc ->
+        Document(lastId++, doc.terms)
+    }
 }

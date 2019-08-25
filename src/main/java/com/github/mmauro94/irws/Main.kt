@@ -1,48 +1,63 @@
 package com.github.mmauro94.irws
 
+/*
+ * Here you will find constants that can be changed to alter the program behavior.
+ */
+
+/**
+ * Limits the number of documents to parse. For debug only. Use [Integer.MAX_VALUE] to have no limits.
+ */
+const val MAX_DOCUMENTS = Integer.MAX_VALUE
+
+/**
+ * The radius parameter to pass to [streamCluster]
+ */
+const val STREAM_CLUSTER_RADIUS = 0.99
+/**
+ * The maximum number of clusters
+ */
+const val MAX_CLUSTERS = Integer.MAX_VALUE
+
+/**
+ * All the encodings to use in the calculation of D-Gaps
+ */
+val ENCODINGS = listOf(
+    FixedLengthBinaryEncoder(4 * 8),
+    VariableByteBinaryEncoder,
+    EliasGammaCodeBinaryEncoder,
+    EliasDeltaCodeBinaryEncoder
+)
+
+/**
+ * Entry point
+ */
 fun main() {
     //Get the Sequence<Document>
-    val documents = documents().take(1000)
+    val documents = documents().take(MAX_DOCUMENTS)
 
+    //Compute and print the D-Gaps before any optimizations
     println("---- INITIAL D-GAPS ----")
-    documents.printDGaps()
+    val initialDGaps = documents.computeDGaps()
+    initialDGaps.print()
 
     println()
 
+    //Compute the clusters
     println("Computing cluster...")
-    val clusters = documents.sortedByDescending { it.terms.size }.streamCluster(0.5)
+    val clusters = documents.sortedByDescending { it.terms.size }.streamCluster(STREAM_CLUSTER_RADIUS, MAX_CLUSTERS)
     println("Clustered completed. Obtained ${clusters.size} clusters")
 
     println()
 
-    println("Computing TSP...")
+    //Run TSP and remap documents IDs
+    println("Remapping document IDs using TSP...")
+    val remappedDocuments = clusters.runTSP().remap()
+    println("Documents remap complete")
+
+    println()
+
+    //Compute and print D-Gaps of remapped documents, comparing with initial D-Gaps
+    println("---- AFTER TSP D-GAPS ----")
+    remappedDocuments.computeDGaps().print(initialDGaps)
 }
 
-val ENCODINGS = listOf(VariableByteBinaryEncoder, GammaCodeBinaryEncoder, DeltaCodeBinaryEncoder)
-fun Sequence<Document>.printDGaps() {
-    val dGaps = ENCODINGS.associateWith { computeDGaps(it) }
-    val winner = dGaps.minBy { it.value }!!.key
-    dGaps
-        .forEach { (enc, bits) ->
-            print("%-30s % 25d bits".format(enc::class.simpleName + ":", bits))
-            if(winner == enc) {
-                print(" <---")
-            }
-            println()
-        }
-}
-
-fun Sequence<Document>.computeDGaps(binaryEncoder: BinaryEncoder): Long {
-    val termToLastId = HashMap<Long, Long>()
-    var totalBits = 0L
-    sortedBy { it.docId }.forEach { doc ->
-        doc.terms.forEach { term ->
-            val lastId = termToLastId[term]
-            if (lastId != null) {
-                totalBits += binaryEncoder.calcBits(doc.docId - lastId)
-            }
-            termToLastId[term] = doc.docId
-        }
-    }
-    return totalBits
-}
