@@ -7,16 +7,16 @@ package com.github.mmauro94.irws
 /**
  * Limits the number of documents to parse. For debug only. Use [Integer.MAX_VALUE] to have no limits.
  */
-const val MAX_DOCUMENTS = Integer.MAX_VALUE
+const val MAX_DOCUMENTS = 2_000
 
 /**
  * The radius parameter to pass to [streamCluster]
  */
-const val STREAM_CLUSTER_RADIUS = 0.99
+const val STREAM_CLUSTER_RADIUS = 0.975
 /**
  * The maximum number of clusters
  */
-const val MAX_CLUSTERS = Integer.MAX_VALUE
+const val MAX_CLUSTERS = 2000
 
 /**
  * All the encodings to use in the calculation of D-Gaps
@@ -32,12 +32,13 @@ val ENCODINGS = listOf(
  * Entry point
  */
 fun main() {
-    //Get the Sequence<Document>
-    val documents = documents().take(MAX_DOCUMENTS)
+    print("Reading documents...")
+    val documents = documents().take(MAX_DOCUMENTS).toList()
+    println("OK, read ${documents.size} documents")
 
     //Compute and print the D-Gaps before any optimizations
     println("---- INITIAL D-GAPS ----")
-    val initialDGaps = documents.computeDGaps()
+    val initialDGaps = documents.asSequence().computeDGaps()
     initialDGaps.print()
 
     println()

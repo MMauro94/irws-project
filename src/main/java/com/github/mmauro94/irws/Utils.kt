@@ -1,22 +1,30 @@
 package com.github.mmauro94.irws
 
+import java.time.Duration
+
 
 /**
  * Computes the Jaccard distance between two generic elements [elem1] and [elem2].
  * @see jaccardIndex
  */
-fun <T, X> jaccardDistance(elem1: T, elem2: T, setSelector: (T) -> Set<X>): Double {
+inline fun <T, X> jaccardDistance(elem1: T, elem2: T, crossinline setSelector: (T) -> Set<X>): Double {
     return 1 - jaccardIndex(elem1, elem2, setSelector)
 }
 
 /**
- * Computes the Jaccard index between two generic elements [elem1] and [elem2].
+ * Computes the Jaccard index (aka Jaccard similarity) between two generic elements [elem1] and [elem2].
  * In order to compute the index, a [setSelector] must be provided, that will return, given an element, the reference set for that element.
  */
-fun <T, X> jaccardIndex(elem1: T, elem2: T, setSelector: (T) -> Set<X>): Double {
+inline fun <T, X> jaccardIndex(elem1: T, elem2: T, crossinline setSelector: (T) -> Set<X>): Double {
     val elem1Set = setSelector(elem1)
     val elem2Set = setSelector(elem2)
-    return elem1Set.intersect(elem2Set).size / elem1Set.union(elem2Set).size.toDouble()
+
+    val intersection = if (elem1Set.size < elem2Set.size) {
+        elem1Set.count { elem2Set.contains(it) }
+    } else {
+        elem2Set.count { elem1Set.contains(it) }
+    }
+    return intersection.toDouble() / (elem1Set.size + elem2Set.size - intersection)
 }
 
 /**
@@ -47,14 +55,16 @@ fun Long.bitsToString(): String {
         "$this bits"
     } else {
         var bytes = this / 8.0
-        var limit = 1024
         val unit = units.listIterator()
         unit.next()
-        while (bytes >= limit && unit.hasNext()) {
+        while (bytes >= 1024 && unit.hasNext()) {
             bytes /= 1024
-            limit *= 1024
             unit.next()
         }
         "% 7.2f %-5s".format(bytes, unit.previous())
     }
+}
+
+fun Duration.str(): String {
+    return "${toHours()}h ${toMinutesPart()}m ${toSecondsPart()}s ${toMillisPart()}ms"
 }

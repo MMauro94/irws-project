@@ -1,9 +1,9 @@
 package com.github.mmauro94.irws
 
 /**
- * Object that holds a reference to all the terms encountered terms, mapping them to a unique ID
+ * Class that holds a reference to all the encountered terms, mapping them to a unique ID
  */
-object Terms {
+class Terms {
     /**
      * The last term ID, used to provide the next one
      */
@@ -16,10 +16,11 @@ object Terms {
     /**
      * Function that returns the term ID, given the [term]
      */
-    fun termId(term: String) = terms.getOrPut(term) { ++lastTermId }
-}
+    fun getTermId(term: String) = terms.getOrPut(term) { ++lastTermId }
 
-/**
- * Converts a list of terms to a set of IDs, using the [Terms.termId] function.
- */
-fun List<String>.toTermIds() = map { Terms.termId(it) }.toSet()
+
+    /**
+     * Converts a list of terms to a set of IDs, using the [getTermId] function.
+     */
+    fun toTermIds(terms: List<String>) = terms.map { getTermId(it) }.toSet()
+}

@@ -1,5 +1,7 @@
 package com.github.mmauro94.irws
 
+import java.util.concurrent.atomic.AtomicLong
+
 /**
  * A document, composed by a doc ID and a set of terms, that are mapped to a unique long id
  *
@@ -10,6 +12,7 @@ class Document(val docId: Long, val terms: Set<Long>) {
 
     override fun hashCode() = docId.hashCode()
     override fun equals(other: Any?) = other is Document && other.docId == docId
+
 
     /**
      * Computes the jaccard distance between this document and [other].

@@ -3,6 +3,7 @@ package com.github.mmauro94.irws
 import org.jgrapht.alg.tour.ChristofidesThreeHalvesApproxMetricTSP
 import org.jgrapht.graph.DefaultUndirectedWeightedGraph
 import org.jgrapht.graph.DefaultWeightedEdge
+import java.time.Duration
 
 /**
  * Class that represents a cluster of [Document]s. Each cluster has a [medoid] that is the leader of the cluster, and contains a collection of [documents]
@@ -43,13 +44,13 @@ class Cluster(
  *
  * Returns the clusters
  */
-fun Sequence<Document>.streamCluster(radius: Double, maxClusters: Int): Set<Cluster> {
+fun Collection<Document>.streamCluster(radius: Double, maxClusters: Int): Set<Cluster> {
     val ret = HashSet<Cluster>()
     //Iterate through documents
     forEachIndexed { i, doc ->
-        if (i % 1000 == 0) {
+        if (i > 0 && i % 100 == 0) {
             //Print progress every 1000 documents
-            println("Clustered $i documents")
+            println("Clustered $i/$size documents")
         }
         //Obtain the cluster that has the minimum distance between its medoid and the current doc
         val min = ret.minOf { c -> c.jaccardDistance(doc) }

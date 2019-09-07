@@ -20,9 +20,10 @@ fun documents(): Sequence<Document> = sequence<Document> {
             //it is a sequence of all the lines in the file
             //convert it as iterator
             val iter = it.asIterable().iterator()
+            val terms = Terms()
             while (iter.hasNext()) {
                 //Parse the next document starting at the current line
-                val doc = iter.nextDocument()
+                val doc = iter.nextDocument(terms)
                 if (doc != null) {
                     //yield the doc to the sequence
                     yield(doc)
@@ -50,7 +51,7 @@ private val TOKEN_SPLIT_REGEX = " +".toRegex()
  *
  * After calling this method, the iterator will have progressed by at least one line.
  */
-private fun Iterator<String>.nextDocument(): Document? {
+private fun Iterator<String>.nextDocument(terms: Terms): Document? {
     //get first line, that should be in the format ".I <docid>"
     val firstLine = if (hasNext()) next() else null
     if (firstLine.isNullOrBlank()) return null //If line is null or empty, skip
@@ -71,7 +72,7 @@ private fun Iterator<String>.nextDocument(): Document? {
         line = nextLineOrIOException()
         tokens += line.split(TOKEN_SPLIT_REGEX)
     } while (line.isNotBlank())
-    return Document(docId, tokens.toTermIds())
+    return Document(docId, terms.toTermIds(tokens))
 }
 
 /**
