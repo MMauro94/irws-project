@@ -1,5 +1,7 @@
 package com.github.mmauro94.irws
 
+import kotlin.math.ceil
+import kotlin.math.floor
 import kotlin.math.log2
 import kotlin.math.pow
 
@@ -10,7 +12,7 @@ interface BinaryEncoder {
     /**
      * The name of the encoder
      */
-    val name : String
+    val name: String
 
     /**
      * Function that, given a number [n] returns the number of bits required to save it
@@ -21,9 +23,11 @@ interface BinaryEncoder {
 /**
  * Function that returns the number of bits required to store [this] number in pure binary
  */
-private fun Long.bitsCount(): Long {
-    return log2(this.toDouble()).toLong() + 1
+fun Long.bitsCount(): Long {
+    return if (this == 0L) 1
+    else log2(this.toDouble()).toLong() + 1
 }
+
 
 /**
  * [BinaryEncoder] that encodes numbers with a fixed length of [bits] bits.
@@ -54,7 +58,7 @@ object VariableByteBinaryEncoder : BinaryEncoder {
 
     override fun calcBits(n: Long): Long {
         require(n > 0) { "n <= 0" }
-        return (n.bitsCount() / 7) * 8
+        return ceil(n.bitsCount() / 7.0).toLong() * 8
     }
 }
 
@@ -85,8 +89,9 @@ open class EliasCodeBinaryEncoder(
 
     override fun calcBits(n: Long): Long {
         require(n > 0) { "n <= 0" }
-        val bitsCount = n.bitsCount()
-        return lengthEncoder.calcBits(bitsCount) + bitsCount - 1
+        val bitsCount = n.bitsCount() - 1
+        if(bitsCount == 0L) return 1
+        return lengthEncoder.calcBits(bitsCount) + bitsCount
     }
 }
 

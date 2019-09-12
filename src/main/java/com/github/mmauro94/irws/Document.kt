@@ -1,7 +1,5 @@
 package com.github.mmauro94.irws
 
-import java.util.concurrent.atomic.AtomicLong
-
 /**
  * A document, composed by a doc ID and a set of terms, that are mapped to a unique long id
  *
@@ -25,7 +23,7 @@ class Document(val docId: Long, val terms: Set<Long>) {
  * Remap the document IDs following [this] sequence order.
  * It will return a new [Sequence] of [Document], where each document will be a new instance containing the same terms and the a progressive doc ID, starting from `1`.
  */
-fun Sequence<Document>.remapIds(): Sequence<Document> {
+fun List<Document>.remapIds(): List<Document> {
     var lastId = 0L
     return map { doc ->
         Document(lastId++, doc.terms)

@@ -25,12 +25,12 @@ fun DGaps.print(previous: DGaps? = null) {
 /**
  * Computes the D-Gaps using all encodings in [ENCODINGS]
  */
-fun Sequence<Document>.computeDGaps(): DGaps = ENCODINGS.associateWith { compute(it) }
+fun Iterable<Document>.computeDGaps(): DGaps = ENCODINGS.associateWith { compute(it) }
 
 /**
  * Computes the total size of the D-Gaps of the posting lists using the provided [binaryEncoder] to encode the gaps
  */
-private fun Sequence<Document>.compute(binaryEncoder: BinaryEncoder): Long {
+private fun Iterable<Document>.compute(binaryEncoder: BinaryEncoder): Long {
     val termToLastId = HashMap<Long, Long>()
     var totalBits = 0L
     sortedBy { it.docId }.forEach { doc ->

@@ -72,7 +72,7 @@ fun Collection<Document>.streamCluster(radius: Double, maxClusters: Int): Set<Cl
  *
  * Returns a [Sequence] of [Cluster] that will iterate clusters following the TSP tour.
  */
-fun Set<Cluster>.runTSP(): Sequence<Cluster> {
+fun Set<Cluster>.runTSP(): List<Cluster> {
     //Create an undirected weighted graph
     val graph = DefaultUndirectedWeightedGraph<Cluster, DefaultWeightedEdge>(DefaultWeightedEdge::class.java)
 
@@ -91,15 +91,15 @@ fun Set<Cluster>.runTSP(): Sequence<Cluster> {
     return ChristofidesThreeHalvesApproxMetricTSP<Cluster, DefaultWeightedEdge>()
         .getTour(graph)
         .vertexList
-        .asSequence()
+        .dropLast(1)
 }
 
 /**
  * Remaps all the documents in all the clusters in [this] sequence,
- * See Sequence<Document>.remap()
+ * See List<Document>.remap()
  */
-fun Sequence<Cluster>.remap(): Sequence<Document> {
+fun List<Cluster>.remap(): List<Document> {
     return flatMap { c ->
-        c.documents.values.asSequence()
+        c.documents.values
     }.remapIds()
 }

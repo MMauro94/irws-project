@@ -7,7 +7,7 @@ package com.github.mmauro94.irws
 /**
  * Limits the number of documents to parse. For debug only. Use [Integer.MAX_VALUE] to have no limits.
  */
-const val MAX_DOCUMENTS = 2_000
+const val MAX_DOCUMENTS = Integer.MAX_VALUE
 
 /**
  * The radius parameter to pass to [streamCluster]
@@ -32,32 +32,33 @@ val ENCODINGS = listOf(
  * Entry point
  */
 fun main() {
+    //Point 1: Parse documents and transform them in a set of term IDs
     print("Reading documents...")
     val documents = documents().take(MAX_DOCUMENTS).toList()
     println("OK, read ${documents.size} documents")
 
-    //Compute and print the D-Gaps before any optimizations
+    //Compute and print the D-Gaps before any optimizations, so we can see where we start
     println("---- INITIAL D-GAPS ----")
-    val initialDGaps = documents.asSequence().computeDGaps()
+    val initialDGaps = documents.computeDGaps()
     initialDGaps.print()
 
     println()
 
-    //Compute the clusters
+    //Point 2: sort the collection by document length, and run the stream cluster algorithm
     println("Computing cluster...")
     val clusters = documents.sortedByDescending { it.terms.size }.streamCluster(STREAM_CLUSTER_RADIUS, MAX_CLUSTERS)
     println("Clustered completed. Obtained ${clusters.size} clusters")
 
     println()
 
-    //Run TSP and remap documents IDs
+    //Point 3 and 4: run TSP and remap documents IDs using the TSP-induced order
     println("Remapping document IDs using TSP...")
     val remappedDocuments = clusters.runTSP().remap()
     println("Documents remap complete")
 
-    println()
 
-    //Compute and print D-Gaps of remapped documents, comparing with initial D-Gaps
+
+    //Point 5: compute and print D-Gaps of remapped documents, comparing with initial D-Gaps
     println("---- AFTER TSP D-GAPS ----")
     remappedDocuments.computeDGaps().print(initialDGaps)
 }
