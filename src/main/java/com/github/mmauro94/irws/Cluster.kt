@@ -3,7 +3,6 @@ package com.github.mmauro94.irws
 import org.jgrapht.alg.tour.ChristofidesThreeHalvesApproxMetricTSP
 import org.jgrapht.graph.DefaultUndirectedWeightedGraph
 import org.jgrapht.graph.DefaultWeightedEdge
-import java.time.Duration
 
 /**
  * Class that represents a cluster of [Document]s. Each cluster has a [medoid] that is the leader of the cluster, and contains a collection of [documents]
@@ -38,13 +37,13 @@ class Cluster(
 }
 
 /**
- * Applies the stream cluster algorithm on [this] sequence of [Document]s.
+ * Applies the stream cluster algorithm on [this] list of [Document]s.
  * @param radius the radius parameter
  * @param maxClusters the maximum number of cluster to create
  *
  * Returns the clusters
  */
-fun Collection<Document>.streamCluster(radius: Double, maxClusters: Int): Set<Cluster> {
+fun List<Document>.streamCluster(radius: Double, maxClusters: Int): Set<Cluster> {
     val ret = HashSet<Cluster>()
     //Iterate through documents
     forEachIndexed { i, doc ->
@@ -70,7 +69,7 @@ fun Collection<Document>.streamCluster(radius: Double, maxClusters: Int): Set<Cl
 /**
  * Runs the TSP using the Jaccard distance between the clusters' [medoid][Cluster.medoid]s.
  *
- * Returns a [Sequence] of [Cluster] that will iterate clusters following the TSP tour.
+ * Returns a [List] of [Cluster] that will iterate clusters following the TSP tour.
  */
 fun Set<Cluster>.runTSP(): List<Cluster> {
     //Create an undirected weighted graph
@@ -87,15 +86,16 @@ fun Set<Cluster>.runTSP(): List<Cluster> {
     }
 
     //Run a a 3/2-approximation algorithm for the metric TSP problem in the constructed graph
-    //Return the sequence of clusters
-    return ChristofidesThreeHalvesApproxMetricTSP<Cluster, DefaultWeightedEdge>()
+    //Return the list of clusters
+    val vertexList = ChristofidesThreeHalvesApproxMetricTSP<Cluster, DefaultWeightedEdge>()
         .getTour(graph)
         .vertexList
-        .dropLast(1)
+    return if (vertexList.size == 1) vertexList
+    else vertexList.dropLast(1)
 }
 
 /**
- * Remaps all the documents in all the clusters in [this] sequence,
+ * Remaps all the documents in all the clusters in [this] list,
  * See List<Document>.remap()
  */
 fun List<Cluster>.remap(): List<Document> {

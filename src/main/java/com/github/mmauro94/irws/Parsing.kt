@@ -32,7 +32,6 @@ fun documents(): Sequence<Document> = sequence<Document> {
         }
     }
 }
-
 /**
  * Regex for the first line of each document
  */

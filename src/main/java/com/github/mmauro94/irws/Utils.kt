@@ -1,7 +1,5 @@
 package com.github.mmauro94.irws
 
-import java.time.Duration
-
 
 /**
  * Computes the Jaccard distance between two generic elements [elem1] and [elem2].
@@ -35,7 +33,7 @@ fun <T, C : Comparable<C>> Iterable<T>.minOf(selector: (T) -> C): Pair<T, C>? {
     var min: Pair<T, C>? = null
     for (elem in this) {
         val selected = selector(elem)
-        if (min == null || min.second < selected) {
+        if (min == null || selected < min.second) {
             min = Pair(elem, selected)
         }
     }
@@ -63,8 +61,4 @@ fun Long.bitsToString(): String {
         }
         "% 7.2f %-5s".format(bytes, unit.previous())
     }
-}
-
-fun Duration.str(): String {
-    return "${toHours()}h ${toMinutesPart()}m ${toSecondsPart()}s ${toMillisPart()}ms"
 }
