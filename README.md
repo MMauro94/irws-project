@@ -51,5 +51,36 @@ The project is strucutred in the following files:
 | Terms | Contains the class definition of `Terms`, needed to cache the term/term id map while parsing |
 | Utils | Contains miscellaneous utility functions, notably a function to compute the Jaccard distance beween two sets and the function the converts a number of bits to a human readable length (kiB, MiB, etc.) |
 
+# Running the program
+It is advised to increase the maximum JVM heap size with the parameter `-Xmx`. For instance, to set the max heap size to 10 gigabytes, use the param like this: `-Xmx10g`. This is needed as the program needs to load in RAM all the documents to perfrom its computations.
+
 # Results
-TO BE DONE
+I've made a few runs trying different radiuses and max clusters. Obiviously incrementing the number of clusters will yield improved results at the cost of performance.
+
+Here is reported the program output for the best run, with radius `0.9` and `3000` max clusters:
+
+```
+Reading documents...OK
+806791 documents read
+
+---- INITIAL D-GAPS ----
+Fixed Length (32 bits):   241,11 MiB        
+Variable byte:             71,97 MiB        
+Elias gamma code:          65,86 MiB        
+Elias delta code:          56,89 MiB   <--- 
+
+Computing clusters...
+Remapping document IDs using TSP...OK
+
+---- AFTER TSP D-GAPS ----
+Fixed Length (32 bits):   241,11 MiB        Saved 0,00%
+Variable byte:             69,40 MiB        Saved 3,57%
+Elias gamma code:          58,26 MiB        Saved 11,54%
+Elias delta code:          50,45 MiB   <--- Saved 11,32%
+```
+
+As we can see we (obiviously) cannot possibly save any space using a fixed-length binary encoding, as the number of gaps stays the same.
+
+For the other three encodings we were able to save space, with the Elias gamma and delta code stealing the show both for absoulte size and also for percentage saved.
+
+Other runs can be found as text files in the `/runs` folder.
