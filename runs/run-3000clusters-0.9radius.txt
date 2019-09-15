@@ -1,0 +1,21 @@
+Reading documents...OK
+806791 documents read
+
+---- INITIAL D-GAPS ----
+Fixed Length (32 bits):   241,11 MiB        
+Variable byte:             71,97 MiB        
+Elias gamma code:          65,86 MiB        
+Elias delta code:          56,89 MiB   <--- 
+
+Computing clusters...
+Clustered completed. Obtained 3000 clusters
+
+Remapping document IDs using TSP...OK
+
+---- AFTER TSP D-GAPS ----
+Fixed Length (32 bits):   241,11 MiB        Saved 0,00%
+Variable byte:             69,40 MiB        Saved 3,57%
+Elias gamma code:          58,26 MiB        Saved 11,54%
+Elias delta code:          50,45 MiB   <--- Saved 11,32%
+
+Process finished with exit code 0
