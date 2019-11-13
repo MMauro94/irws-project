@@ -7,7 +7,7 @@ package com.github.mmauro94.irws
 /**
  * Limits the number of documents to parse. For debug only. Use [Integer.MAX_VALUE] to have no limits.
  */
-const val MAX_DOCUMENTS = Integer.MAX_VALUE
+const val MAX_DOCUMENTS = 500
 
 /**
  * The radius parameter to pass to [streamCluster]

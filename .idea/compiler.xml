@@ -9,5 +9,8 @@
         <module name="irws-project" />
       </profile>
     </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="irws-project" target="1.5" />
+    </bytecodeTargetLevel>
   </component>
 </project>
